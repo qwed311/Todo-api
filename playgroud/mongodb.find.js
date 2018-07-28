@@ -10,4 +10,9 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', (err, db) => {
     (err) => {
          console.log('unable to fetch Todos');
      });
+    
+     db.collection('Todos').find().toArray().then((docs) => {
+        console.log(docs);
+     });
+
 });
