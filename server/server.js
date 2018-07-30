@@ -41,12 +41,13 @@ app.get('/todos/:id', (req, res) => {
                 return res.status(404).send({e: "b"});
             }
             res.send(todo);
+            console.log(todo._id);
         },
         (err) => {res.status(400).send({e: "c"})}
     );
 });
   
-Todo.fi
+
 
 
 app.listen(3000, () =>{
