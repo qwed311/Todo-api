@@ -8,6 +8,7 @@ const jwt= require('jsonwebtoken');
 var {mongoose}= require('./db/mogoose');
 var {User}= require('./models/user');
 var {Todo}= require('./models/todo');
+const {authenticate}= require('./middleware/authenticate');
 
 const port = process.env.PORT || 3000;
 var app= express();
@@ -119,10 +120,10 @@ app.post('/user', (req, res) => {
     .catch((e) => {res.status(400).send(e);});
 });
 
-// var data= {id: 10};
-// var x= jwt.sign(3436, 'patatas1');
-// console.log(x);
-// console.log(typeof x);
+app.get('/user/me', authenticate,  (req, res) => {
+    res.send(req.token);
+});
+
 
 
 app.listen(port, () => {
