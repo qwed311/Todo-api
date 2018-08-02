@@ -7,7 +7,7 @@ const {Todo}= require('../models/todo');
 
 var id1= new ObjectID();
 var id2= new ObjectID();
-const todos= [{text: "first test todo", _id: id1}, {text: "second test todo", _id: id2}];
+const todos= [{text: "first test todo", _id: id2}, {text: "second test todo", _id: id1}];
 
 beforeEach((done) => {
     Todo.remove({})
