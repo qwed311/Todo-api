@@ -4,6 +4,7 @@ var {ObjectID}= require('mongodb');
 const {SHA256}= require('crypto-js');
 const _= require('lodash');
 const jwt= require('jsonwebtoken');
+const bcryptjs= require('bcryptjs');
 
 var {mongoose}= require('./db/mogoose');
 var {User}= require('./models/user');
@@ -121,7 +122,31 @@ app.post('/user', (req, res) => {
 });
 
 app.get('/user/me', authenticate,  (req, res) => {
-    res.send(req.token);
+    //console.log(req);
+    res.send(req.user);
+
+});
+
+app.post('/user/login', (req, res) => {
+    var body= _.pick(req.body, ['email', 'password']);
+    var f;
+    User.findCredentials(body.email, body.password)
+    .then((user) => {
+        f= user;  //just a dummy im afrfaid to remove it migth cause bug
+        return user.generateAuthToken().then((token) => {
+            res.header('x-auth', token).send(user);
+        })
+    })
+    .catch((e) => {res.status(400).send(e);});
+});
+
+
+app.delete('/user/me/token', authenticate, (req,res) => {
+    req.user.removetoken(req.token)
+    .then(
+        () => {res.status(200).send();},
+        () => {res.status(400).send();}
+    );
 });
 
 

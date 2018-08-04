@@ -3,6 +3,7 @@ var validator= require('validator');
 const jwt= require('jsonwebtoken');
 var mongodb= require('mongodb');
 var _= require('lodash');
+var bcrypt= require('bcryptjs');
 
 var UserSchema= new mongoose.Schema(
   {
@@ -53,6 +54,12 @@ UserSchema.methods.generateAuthToken= function(){
   );
 };
 
+UserSchema.methods.removetoken= function(tokin) {
+  return this.update({
+    $pull: {tokens: {token: tokin}}
+  });
+};
+
 UserSchema.statics.findByToken= function(token){
   var decoded;
 
@@ -68,7 +75,36 @@ UserSchema.statics.findByToken= function(token){
     'tokens.token': token,
     'tokens.access': 'auth'
   });
-}
+};
+
+UserSchema.pre('save', function (next){
+  if(this.isModified('password')){     //a buit in nmethod to test if oject property is modified;
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(this.password, salt, (err, hash) =>{
+        this.password= hash;
+        next();
+      });
+    });
+  }
+  else{next();}
+});
+
+UserSchema.statics.findCredentials= function(email, pass) {
+  return this.findOne({email}) .then((user) => {
+    if(!user){return Promise.reject();}
+    
+    return new Promise((resolve, reject) => {
+      bcrypt.compare(pass, user.password, (err, res) => {
+        if(!res){
+          reject('email and password dont match');
+        }
+          resolve (user);
+      });
+    });
+  });  
+};
+
+
 
 var User= mongoose.model('user', UserSchema);
 
